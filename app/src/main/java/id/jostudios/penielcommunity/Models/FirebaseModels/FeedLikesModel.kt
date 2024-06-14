@@ -2,5 +2,5 @@ package id.jostudios.penielcommunity.Models.FirebaseModels
 
 data class FeedLikesModel(
     var id: Long = 0,
-    var userLikes: MutableList<Long> = mutableListOf()
+    var userLikes: MutableList<String> = mutableListOf()
 )

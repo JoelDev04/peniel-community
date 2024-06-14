@@ -9,7 +9,7 @@ data class FeedPostModel(
     var totalLikes: Int = 0,
 
     var feedID: Long = 0,
-    var feedOwnerID: Long = 0,
+    var feedOwnerID: String = "0",
     var uploadTime: Long = Date().time,
 
     var photoUrl: MutableList<String> = mutableListOf(""),

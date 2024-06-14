@@ -1,6 +1,7 @@
 package id.jostudios.penielcommunity.Helpers
 
 import android.provider.ContactsContract.Data
+import com.google.firebase.ktx.Firebase
 import id.jostudios.penielcommunity.Models.FirebaseModels.CredentialModel
 import id.jostudios.penielcommunity.Models.FirebaseModels.TokenModel
 import id.jostudios.penielcommunity.Models.FirebaseModels.UserModel
@@ -32,6 +33,15 @@ object AuthHelper {
     }
 
     public suspend fun login(userName: String, password: String) {
+        val auth = FirebaseHelper.getAuth();
+
+        val email = "${userName}@gmail.com";
+
+        if (auth.currentUser == null) {
+            auth.signInWithEmailAndPassword(email, password);
+            return;
+        }
+
         val credential = DatabaseHelper.getCredentialByName(userName);
 
         System.debug("Credentials : ${credential}");
@@ -54,27 +64,31 @@ object AuthHelper {
     }
 
     public suspend fun createAccount(userName: String, password: String) {
+        val auth = FirebaseHelper.getAuth();
+
+        val email = "${userName}@gmail.com";
+
+        auth.createUserWithEmailAndPassword(email, password);
+        auth.signInWithEmailAndPassword(email, password);
+
         val credential = DatabaseHelper.getCredentialByName(userName);
 
         if (credential != null) {
-            throw  Exception("Account is already exists!");
+            throw Exception("Account is already exists!");
         }
 
-        val date = Date().time;
-        val id = date + userName.hashCode().toLong();
-
-        if (DatabaseHelper.getCredentialByID(id) != null) {
+        if (DatabaseHelper.getCredentialByID(auth.uid!!) != null) {
             throw Exception("Invalid! Please try again later!");
         }
 
         var newCreds = CredentialModel(
-            id = id,
+            id = auth.uid!!,
             name = userName,
             password = password
         );
 
         var newUser = UserModel(
-            id = id,
+            id = auth.uid!!,
             name = userName,
             displayName = userName
         );

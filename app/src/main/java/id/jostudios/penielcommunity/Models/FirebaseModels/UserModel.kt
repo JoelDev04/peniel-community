@@ -5,7 +5,7 @@ import id.jostudios.penielcommunity.Enums.Permissions
 import id.jostudios.penielcommunity.Enums.Roles
 
 data class UserModel(
-    var id: Long,
+    var id: String,
     var name: String,
 
     var displayName: String,

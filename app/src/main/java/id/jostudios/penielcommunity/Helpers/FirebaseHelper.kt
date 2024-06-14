@@ -48,8 +48,6 @@ object FirebaseHelper {
                 storage = FirebaseStorage.getInstance(FirebaseApp.getInstance(dbName));
             }
 
-            auth.signInAnonymously();
-
             System.debug("Database initialized!");
         } catch (e: Exception) {
             System.debug("Catching error : ${e.message}");

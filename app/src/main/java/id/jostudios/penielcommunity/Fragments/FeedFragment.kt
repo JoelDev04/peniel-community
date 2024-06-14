@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.ktx.Firebase
 import id.jostudios.penielcommunity.Activities.UploadFeedActivity
 import id.jostudios.penielcommunity.Adapters.FeedAdapter
 import id.jostudios.penielcommunity.Helpers.DatabaseHelper
@@ -92,6 +93,9 @@ class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private suspend fun loadFeedData() {
+        if (FirebaseHelper.getAuth().currentUser == null) {
+            throw Exception("User not logged in");
+        }
 
         var feedList = DatabaseHelper.getFeeds();
 

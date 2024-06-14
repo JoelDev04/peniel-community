@@ -178,8 +178,8 @@ class FeedAdapter(private var dataList: List<FeedPostModel>): RecyclerView.Adapt
                 return@launch;
             }
 
-            if (likes.userLikes.size > 0 && likes.userLikes[0] == 100.toLong()) {
-                likes.userLikes.remove(100);
+            if (likes.userLikes.size > 0 && likes.userLikes[0] == 100.toString()) {
+                likes.userLikes.remove("100");
             }
 
             withContext(Dispatchers.Main) {
@@ -260,7 +260,7 @@ class FeedAdapter(private var dataList: List<FeedPostModel>): RecyclerView.Adapt
         }
     }
 
-    private suspend fun fetchAuthor(id: Long): UserModel? {
+    private suspend fun fetchAuthor(id: String): UserModel? {
         try {
             var author = DatabaseHelper.getUserByID(id);
 
