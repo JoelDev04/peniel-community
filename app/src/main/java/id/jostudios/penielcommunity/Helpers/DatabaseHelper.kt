@@ -36,6 +36,65 @@ object DatabaseHelper {
         System.debug("Credential Raw : ${rawData}");
 
         val data = gson.fromJson<Map<Long, CredentialModel>>(rawData, credentialListModelType);
+        val dataList = data.values.toMutableList();
+
+        return dataList;
+    }
+
+    public suspend fun getUsers(): MutableList<UserModel> {
+        val rawData = FirebaseHelper.readNode("users");
+        System.debug("User Raw : ${rawData}");
+
+        val data = gson.fromJson<Map<Long, UserModel>>(rawData, userListModelType);
+        val dataList = data.values.toMutableList();
+
+        return dataList;
+    }
+
+    public suspend fun getCredentialById(id: String): CredentialModel? {
+        val rawData = FirebaseHelper.readNode("credentials/${id}");
+        val data = gson.fromJson<CredentialModel>(rawData, credentialModelType);
+
+        return data;
+    }
+
+    public suspend fun getUserById(id: String): UserModel? {
+        val rawData = FirebaseHelper.readNode("users/${id}");
+        val data = gson.fromJson<UserModel>(rawData, userModelType);
+
+        return data;
+    }
+
+    public suspend fun getCredentialByName(name: String): CredentialModel? {
+        val datas = getCredentials();
+
+        for (data in datas) {
+            if (data.id == 100.toString()) {
+                continue;
+            }
+
+            if (data.name == name) {
+                return data;
+            }
+        }
+
+        return null;
+    }
+
+    public suspend fun getUserByName(name: String): UserModel? {
+        val datas = getUsers();
+
+        for (data in datas) {
+            if (data.id == 100.toString()) {
+                continue;
+            }
+
+            if (data.name == name) {
+                return data;
+            }
+        }
+
+        return null;
     }
 
 //    public suspend fun getCredentials(): MutableList<CredentialModel> {
