@@ -97,74 +97,36 @@ object DatabaseHelper {
         return null;
     }
 
-//    public suspend fun getCredentials(): MutableList<CredentialModel> {
-//        val rawData = FirebaseHelper.readNode("credentials");
-//        System.debug("Credential Raw : ${rawData}");
-//
-//        val data = gson.fromJson<Map<Long, CredentialModel>>(rawData, credentialListModelType);
-//        val dataList = data.values.toMutableList();
-//
-//        val tempRaw = gson.toJson(dataList);
-//        System.debug("Credential List Raw : ${tempRaw}");
-//
-//        return dataList;
-//    }
-//
-//    public suspend fun getCredentialByID(id: String): CredentialModel? {
-//        val rawData = FirebaseHelper.readNode("credentials/${id}");
-//        val data = gson.fromJson<CredentialModel>(rawData, credentialModelType);
-//
-//        return data;
-//    }
-//
-//    public suspend fun getCredentialByName(name: String): CredentialModel? {
-//        val datas = getCredentials();
-//
-//        for (data in datas) {
-//            if (data.id == 100.toString()) { continue; }
-//
-//            if (data.name == name) {
-//                return data;
-//            }
-//        }
-//
-//        return null;
-//    }
-//
-//    public suspend fun getUsers(): MutableList<UserModel> {
-//        val rawData = FirebaseHelper.readNode("users");
-//        System.debug("User Raw : ${rawData}");
-//
-//        val data = gson.fromJson<Map<Long, UserModel>>(rawData, userListModelType);
-//        val dataList = data.values.toMutableList();
-//
-//        val tempRaw = gson.toJson(dataList);
-//        System.debug("User List Raw : ${tempRaw}");
-//
-//        return dataList;
-//    }
-//
-//    public suspend fun getUserByID(id: String): UserModel? {
-//        val rawData = FirebaseHelper.readNode("users/${id}");
-//        val data = gson.fromJson<UserModel>(rawData, userModelType);
-//
-//        return data;
-//    }
-//
-//    public suspend fun getUserByName(name: String): UserModel? {
-//        val datas = getUsers();
-//
-//        for (data in datas) {
-//            if (data.id == 100.toString()) { continue; }
-//
-//            if (data.name == name) {
-//                return data;
-//            }
-//        }
-//
-//        return null;
-//    }
-//
+    public suspend fun postCredential(credentialModel: CredentialModel) {
+        val checkID = getCredentialById(credentialModel.id);
+        val checkName = getCredentialByName(credentialModel.name);
+
+        if (checkID != null) {
+            throw Exception("Kredensial dengan ID yang sama sudah di buat!");
+        }
+
+        if (checkName != null) {
+            throw Exception("Kredensial dengan nama yang sama sudah di buat!");
+        }
+
+        FirebaseHelper.writeNode("credentials/${credentialModel.id}", credentialModel);
+    }
+
+    public suspend fun postUser(userModel: UserModel) {
+        val checkID = getUserById(userModel.id);
+        val checkName = getUserByName(userModel.name);
+
+        if (checkID != null) {
+            throw Exception("Akun dengan ID yang sama sudah di buat!");
+        }
+
+        if (checkName != null) {
+            throw Exception("Akun dengan nama yang sama sudah di buat!");
+        }
+
+        FirebaseHelper.writeNode("users/${userModel.id}", userModel);
+    }
+
 //    public suspend fun postUser(userModel: UserModel) {
 //        var checkID = getUserByID(userModel.id);
 //        var checkName = getUserByName(userModel.name);

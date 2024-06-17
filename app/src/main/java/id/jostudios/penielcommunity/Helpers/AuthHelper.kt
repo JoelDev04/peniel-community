@@ -42,7 +42,7 @@ object AuthHelper {
             return;
         }
 
-        val credential = DatabaseHelper.getCredentialByName(userName);
+        val credential = DatabaseHelper.getCredentialById(auth.uid!!);
 
         System.debug("Credentials : ${credential}");
 
@@ -54,7 +54,7 @@ object AuthHelper {
             throw Exception("Password doesn't match!");
         }
 
-        val user = DatabaseHelper.getUserByID(credential.id);
+        val user = DatabaseHelper.getUserById(credential.id);
 
         System.debug("User : ${user}");
 
@@ -71,13 +71,13 @@ object AuthHelper {
         auth.createUserWithEmailAndPassword(email, password);
         auth.signInWithEmailAndPassword(email, password);
 
-        val credential = DatabaseHelper.getCredentialByName(userName);
+        val credential = DatabaseHelper.getCredentialById(auth.uid!!);
 
         if (credential != null) {
             throw Exception("Account is already exists!");
         }
 
-        if (DatabaseHelper.getCredentialByID(auth.uid!!) != null) {
+        if (DatabaseHelper.getCredentialById(auth.uid!!) != null) {
             throw Exception("Invalid! Please try again later!");
         }
 
