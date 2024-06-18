@@ -13,11 +13,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import id.jostudios.penielcommunity.Activities.UploadFeedActivity
 import id.jostudios.penielcommunity.Adapters.FeedAdapter
 import id.jostudios.penielcommunity.Helpers.DatabaseHelper
 import id.jostudios.penielcommunity.Helpers.FirebaseHelper
+import id.jostudios.penielcommunity.Objects.GlobalState
 import id.jostudios.penielcommunity.Objects.System
 import id.jostudios.penielcommunity.R
 import id.jostudios.penielcommunity.ViewModels.MainViewModel
@@ -37,6 +39,7 @@ class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
     //private lateinit var dbOps: DatabaseOps;
 
     private lateinit var homeFragment: HomeFragment;
+    private lateinit var auth: FirebaseAuth;
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,6 +74,11 @@ class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
         homeFragment = HomeFragment();
 
         mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java];
+
+        auth = FirebaseHelper.getAuth();
+        auth.updateCurrentUser(GlobalState.firebaseUser!!);
+
+        FirebaseHelper.setAuth(auth);
     }
 
     private fun widgetHandler() {
@@ -93,28 +101,30 @@ class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private suspend fun loadFeedData() {
-        if (FirebaseHelper.getAuth().currentUser == null) {
+        System.debug("Auth ID : ${auth.currentUser?.uid}");
+
+        if (auth.currentUser == null) {
             throw Exception("User not logged in");
         }
 
-        var feedList = DatabaseHelper.getFeeds();
+//        var feedList = DatabaseHelper.getFeeds();
+//
+//        if (feedList.size <= 0) {
+//
+//            return;
+//        }
+//
+//        feedList.sortByDescending {
+//            it.uploadTime
+//        };
 
-        if (feedList.size <= 0) {
-
-            return;
-        }
-
-        feedList.sortByDescending {
-            it.uploadTime
-        };
-
-        var adapter = FeedAdapter(feedList);
-
-        withContext(Dispatchers.Main) {
-            adapter.notifyDataSetChanged();
-
-            recylerFeed.layoutManager = LinearLayoutManager(requireActivity());
-            recylerFeed.adapter = adapter;
-        }
+//        var adapter = FeedAdapter(feedList);
+//
+//        withContext(Dispatchers.Main) {
+//            adapter.notifyDataSetChanged();
+//
+//            recylerFeed.layoutManager = LinearLayoutManager(requireActivity());
+//            recylerFeed.adapter = adapter;
+//        }
     }
 }

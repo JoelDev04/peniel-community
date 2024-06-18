@@ -7,8 +7,10 @@ import id.jostudios.penielcommunity.Models.FirebaseModels.TokenModel
 import id.jostudios.penielcommunity.Models.FirebaseModels.UserModel
 import id.jostudios.penielcommunity.Objects.GlobalState
 import id.jostudios.penielcommunity.Objects.System
+import kotlinx.coroutines.tasks.await
 import java.lang.Exception
 import java.util.Date
+import kotlin.math.log
 
 object AuthHelper {
     public fun parseToken(rawData: String): TokenModel? {
@@ -37,12 +39,19 @@ object AuthHelper {
 
         val email = "${userName}@gmail.com";
 
-        if (auth.currentUser == null) {
-            auth.signInWithEmailAndPassword(email, password);
-            return;
+        val login = auth.signInWithEmailAndPassword(email, password).await();
+
+        if (login.user == null) {
+            throw Exception("Login failed. User is null!");
         }
 
-        val credential = DatabaseHelper.getCredentialById(auth.uid!!);
+        auth.updateCurrentUser(login.user!!);
+
+        System.debug("UID : ${login.user?.uid}");
+        System.debug("Current user : ${auth.currentUser.toString()}");
+        System.debug("Login user : ${login.user.toString()}");
+
+        val credential = DatabaseHelper.getCredentialById(login.user?.uid!!);
 
         System.debug("Credentials : ${credential}");
 
@@ -61,6 +70,9 @@ object AuthHelper {
         GlobalState.currentUser = user;
         GlobalState.currentCredential = credential;
         GlobalState.isLogin = true;
+        GlobalState.firebaseUser = login.user!!;
+
+        FirebaseHelper.setAuth(auth);
     }
 
     public suspend fun createAccount(userName: String, password: String) {
@@ -68,10 +80,13 @@ object AuthHelper {
 
         val email = "${userName}@gmail.com";
 
-        auth.createUserWithEmailAndPassword(email, password);
-        auth.signInWithEmailAndPassword(email, password);
+        val result = auth.createUserWithEmailAndPassword(email, password).await();
 
-        val credential = DatabaseHelper.getCredentialById(auth.uid!!);
+        if (result.user == null) {
+            throw Exception("User creation failed!");
+        }
+
+        val credential = DatabaseHelper.getCredentialById(result.user?.uid!!);
 
         if (credential != null) {
             throw Exception("Account is already exists!");
@@ -82,13 +97,13 @@ object AuthHelper {
         }
 
         var newCreds = CredentialModel(
-            id = auth.uid!!,
+            id = result.user?.uid!!,
             name = userName,
             password = password
         );
 
         var newUser = UserModel(
-            id = auth.uid!!,
+            id = result.user?.uid!!,
             name = userName,
             displayName = userName
         );

@@ -168,59 +168,59 @@ class FeedAdapter(private var dataList: List<FeedPostModel>): RecyclerView.Adapt
     }
 
     private fun setDynamics(data: FeedPostModel, holder: FeedViewHolder) {
-        GlobalScope.launch {
-            var likes = DatabaseHelper.getFeedLikeByID(data.feedID);
-            var comments = DatabaseHelper
-
-            if (likes == null) {
-                DatabaseHelper.addFeedLike(data.feedID);
-                holder.textLikeCounter.text = "0";
-                return@launch;
-            }
-
-            if (likes.userLikes.size > 0 && likes.userLikes[0] == 100.toString()) {
-                likes.userLikes.remove("100");
-            }
-
-            withContext(Dispatchers.Main) {
-                var isLiked = likes.userLikes.find { it == GlobalState.currentUser?.id } != null;
-
-                holder.textLikeCounter.text = likes.userLikes.size.toString();
-                holder.textCommentCounter.text = "0";
-
-                if (isLiked) {
-                    holder.imgBtnLike.setImageResource(R.drawable.like_filled);
-                } else {
-                    holder.imgBtnLike.setImageResource(R.drawable.like);
-                }
-
-                holder.imgBtnLike.setOnClickListener {
-                    isLiked = likes.userLikes.find { it == GlobalState.currentUser?.id } != null;
-
-                    if (isLiked) {
-                        likes.userLikes.remove(GlobalState.currentUser?.id!!);
-                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_shrink_down);
-                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_grow_up);
-                        holder.imgBtnLike.setImageResource(R.drawable.like);
-                        holder.textLikeCounter.text = likes.userLikes.size.toString();
-                    } else {
-                        likes.userLikes.add(GlobalState.currentUser?.id!!);
-                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_shrink_down);
-                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_grow_up);
-                        holder.imgBtnLike.setImageResource(R.drawable.like_filled);
-                        holder.textLikeCounter.text = likes.userLikes.size.toString();
-                    }
-
-                    GlobalScope.launch {
-                        DatabaseHelper.postFeedLike(data.feedID, likes);
-                    }
-                }
-
-                holder.imgBtnComment.setOnClickListener {
-                    System.dialogMessageBox(context, "Info", "Fitur ini belum tersedia!");
-                }
-            }
-        }
+//        GlobalScope.launch {
+//            var likes = DatabaseHelper.getFeedLikeByID(data.feedID);
+//            var comments = DatabaseHelper
+//
+//            if (likes == null) {
+//                DatabaseHelper.addFeedLike(data.feedID);
+//                holder.textLikeCounter.text = "0";
+//                return@launch;
+//            }
+//
+//            if (likes.userLikes.size > 0 && likes.userLikes[0] == 100.toString()) {
+//                likes.userLikes.remove("100");
+//            }
+//
+//            withContext(Dispatchers.Main) {
+//                var isLiked = likes.userLikes.find { it == GlobalState.currentUser?.id } != null;
+//
+//                holder.textLikeCounter.text = likes.userLikes.size.toString();
+//                holder.textCommentCounter.text = "0";
+//
+//                if (isLiked) {
+//                    holder.imgBtnLike.setImageResource(R.drawable.like_filled);
+//                } else {
+//                    holder.imgBtnLike.setImageResource(R.drawable.like);
+//                }
+//
+//                holder.imgBtnLike.setOnClickListener {
+//                    isLiked = likes.userLikes.find { it == GlobalState.currentUser?.id } != null;
+//
+//                    if (isLiked) {
+//                        likes.userLikes.remove(GlobalState.currentUser?.id!!);
+//                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_shrink_down);
+//                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_grow_up);
+//                        holder.imgBtnLike.setImageResource(R.drawable.like);
+//                        holder.textLikeCounter.text = likes.userLikes.size.toString();
+//                    } else {
+//                        likes.userLikes.add(GlobalState.currentUser?.id!!);
+//                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_shrink_down);
+//                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_grow_up);
+//                        holder.imgBtnLike.setImageResource(R.drawable.like_filled);
+//                        holder.textLikeCounter.text = likes.userLikes.size.toString();
+//                    }
+//
+//                    GlobalScope.launch {
+//                        DatabaseHelper.postFeedLike(data.feedID, likes);
+//                    }
+//                }
+//
+//                holder.imgBtnComment.setOnClickListener {
+//                    System.dialogMessageBox(context, "Info", "Fitur ini belum tersedia!");
+//                }
+//            }
+//        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -262,7 +262,7 @@ class FeedAdapter(private var dataList: List<FeedPostModel>): RecyclerView.Adapt
 
     private suspend fun fetchAuthor(id: String): UserModel? {
         try {
-            var author = DatabaseHelper.getUserByID(id);
+            var author = DatabaseHelper.getUserById(id);
 
             if (author == null) {
                 System.debug("Author not found!");

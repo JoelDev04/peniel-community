@@ -59,8 +59,8 @@ class UploadViewModel: ViewModel() {
                 tempFeed.feedType = FeedType.Thread;
             }
 
-            DatabaseHelper.postFeedContainer(tempFeed);
-            DatabaseHelper.postFeedLike(tempFeed.feedID, tempFeedLikes);
+//            DatabaseHelper.postFeedContainer(tempFeed);
+//            DatabaseHelper.postFeedLike(tempFeed.feedID, tempFeedLikes);
 
             withContext(Dispatchers.IO) {
                 Thread.sleep(2500)

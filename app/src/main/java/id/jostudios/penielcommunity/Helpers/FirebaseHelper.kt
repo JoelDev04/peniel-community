@@ -70,6 +70,10 @@ object FirebaseHelper {
         return auth;
     }
 
+    public fun setAuth(authValue: FirebaseAuth) {
+        auth = authValue;
+    }
+
     public suspend fun readNode(child: String): String {
         val node = getDBReference().child(child).get();
         val value = node.await().value;
