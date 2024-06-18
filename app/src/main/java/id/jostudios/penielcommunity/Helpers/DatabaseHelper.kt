@@ -127,6 +127,14 @@ object DatabaseHelper {
         FirebaseHelper.writeNode("users/${userModel.id}", userModel);
     }
 
+    public suspend fun getFeeds(): MutableList<FeedPostModel> {
+        val rawData = FirebaseHelper.readNode("feed_container");
+        val data = gson.fromJson<Map<Long, FeedPostModel>>(rawData, feedListModelType);
+        val dataList = data.values.toMutableList();
+
+        return dataList;
+    }
+
 //    public suspend fun postUser(userModel: UserModel) {
 //        var checkID = getUserByID(userModel.id);
 //        var checkName = getUserByName(userModel.name);

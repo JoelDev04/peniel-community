@@ -104,7 +104,15 @@ class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
         System.debug("Auth ID : ${auth.currentUser?.uid}");
 
         if (auth.currentUser == null) {
+            System.destroyLoadingDialog();
             throw Exception("User not logged in");
+        }
+
+        try {
+            val feedList = DatabaseHelper.getFeeds();
+        }
+        catch (e: Exception) {
+            System.dialogMessageBox(requireActivity(), "Error", e.message.toString());
         }
 
 //        var feedList = DatabaseHelper.getFeeds();
