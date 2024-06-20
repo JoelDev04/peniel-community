@@ -21,6 +21,7 @@ import id.jostudios.penielcommunity.ViewModels.MainViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[MainViewModel::class.java];
 
         homeFragment = HomeFragment();
-        feedFragment = FeedFragment(viewModel);
+        feedFragment = FeedFragment();
         settingsFragment = SettingsFragment();
 
         frameFragmentContainer = findViewById(R.id.frame_fragment_container);
@@ -123,7 +124,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadUserData() {
-        var user = GlobalState.currentUser!!;
+        val user = GlobalState.currentUser!!;
+
+        val auth = FirebaseHelper.getAuth();
+        auth.updateCurrentUser(GlobalState.firebaseUser!!);
+
+        viewModel.setAuth(auth);
+        FirebaseHelper.setAuth(auth);
+
+        GlobalState.auth = auth;
+
         System.debug("UserData : ${user}");
     }
 }

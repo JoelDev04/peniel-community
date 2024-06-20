@@ -135,88 +135,55 @@ object DatabaseHelper {
         return dataList;
     }
 
-//    public suspend fun postUser(userModel: UserModel) {
-//        var checkID = getUserByID(userModel.id);
-//        var checkName = getUserByName(userModel.name);
-//
-//        if (checkID != null) {
-//            throw Exception("Akun dengan ID yang sama sudah di buat!");
-//        }
-//
-//        if (checkName != null) {
-//            throw Exception("Akun dengan nama yang sama sudah di buat!");
-//        }
-//
-//        FirebaseHelper.writeNode("users/${userModel.id}", userModel);
-//    }
-//
-//    public suspend fun postCredential(credentialModel: CredentialModel) {
-//        var checkID = getCredentialByID(credentialModel.id);
-//        var checkName = getCredentialByName(credentialModel.name);
-//
-//        if (checkID != null) {
-//            throw Exception("Kredensial dengan ID yang sama sudah di buat!");
-//        }
-//
-//        if (checkName != null) {
-//            throw Exception("Kredensial dengan nama yang sama sudah di buat!");
-//        }
-//
-//        FirebaseHelper.writeNode("credentials/${credentialModel.id}", credentialModel);
-//    }
-//
-//    public suspend fun getFeeds(): MutableList<FeedPostModel> {
-//        val rawData = FirebaseHelper.readNode("feed_container");
-//
-//        val data = gson.fromJson<Map<Long, FeedPostModel>>(rawData, feedListModelType);
-//        val dataList = data.values.toMutableList();
-//
-//        return dataList
-//    }
-//
-//    public suspend fun getFeedByID(id: Long): FeedPostModel? {
-//        val rawData = FirebaseHelper.readNode("feed_container/${id}");
-//        val data = gson.fromJson<FeedPostModel>(rawData, feedModelType);
-//
-//        return data;
-//    }
-//
-//    public  suspend fun postFeedContainer(feedPostModel: FeedPostModel) {
-//        val checkID = getFeedByID(feedPostModel.feedID);
-//
-//        if (checkID != null) {
-//            throw Exception("Feed dengan ID yang sama sudah di buat!");
-//        }
-//
-//        FirebaseHelper.writeNode("feed_container/${feedPostModel.feedID}", feedPostModel);
-//    }
-//
-//    public suspend fun getFeedLikes(): MutableList<FeedLikesModel> {
-//        val rawData = FirebaseHelper.readNode("feed_likes");
-//        val data = gson.fromJson<Map<Long, FeedLikesModel>>(rawData, feedLikeListType);
-//        val dataList = data.values.toMutableList();
-//
-//        return dataList;
-//    }
-//
-//    public suspend fun getFeedLikeByID(feedID: Long): FeedLikesModel? {
-//        val rawData = FirebaseHelper.readNode("feed_likes/${feedID}");
-//        val data = gson.fromJson<FeedLikesModel>(rawData, feedLikeType);
-//
-//        return data;
-//    }
-//
-//    public suspend fun getFeedCommentByID(feedID: Long): FeedCommentModel? {
-//        val rawData = FirebaseHelper.readNode("feed_comments/${feedID}");
-//        val data = gson.fromJson<FeedCommentModel>(rawData, feedCommentType);
-//
-//        return data;
-//    }
-//
-//    public suspend fun postFeedLike(feedID: Long, model: FeedLikesModel) {
-//        FirebaseHelper.writeNode("feed_likes/${feedID}", model);
-//    }
-//
+    public suspend fun getFeedById(id: Long): FeedPostModel? {
+        val rawData = FirebaseHelper.readNode("feed_container/${id}");
+        val data = gson.fromJson<FeedPostModel>(rawData, feedModelType);
+
+        return data;
+    }
+
+    public suspend fun postFeed(feedModel: FeedPostModel) {
+        val checkId = getFeedById(feedModel.feedID);
+
+        if (checkId != null) {
+            throw Exception("Feed dengan ID yang sama sudah di buat!");
+        }
+
+        FirebaseHelper.writeNode("feed_container/${feedModel.feedID}", feedModel);
+    }
+
+    public suspend fun getFeedLikes(): MutableList<FeedLikesModel> {
+        val rawData = FirebaseHelper.readNode("feed_likes");
+        val data = gson.fromJson<Map<Long, FeedLikesModel>>(rawData, feedLikeListType);
+        val dataList = data.values.toMutableList();
+
+        return dataList;
+    }
+
+    public suspend fun getFeedLikeById(feedID: Long): FeedLikesModel? {
+        val rawData = FirebaseHelper.readNode("feed_likes/${feedID}");
+        val data = gson.fromJson<FeedLikesModel>(rawData, feedLikeType);
+
+        return data;
+    }
+
+    public suspend fun postFeedLike(feedID: Long, model: FeedLikesModel) {
+        val checkID = getFeedLikeById(feedID);
+
+        if (checkID != null) {
+            throw Exception("Feed like dengan ID yang sama telah di temukan!");
+        }
+
+        FirebaseHelper.writeNode("feed_likes/${feedID}", model);
+    }
+
+    public suspend fun getUserFeedLike(feedID: Long, userID: String): String {
+        val rawData = FirebaseHelper.readNode("feed_likes/${feedID}/userLikes/${userID}");
+        val data = gson.fromJson<String>(rawData, String::class.java);
+
+        return data;
+    }
+
 //    public suspend fun addFeedLike(feedID: Long) {
 //        val checkID = getFeedLikeByID(feedID);
 //

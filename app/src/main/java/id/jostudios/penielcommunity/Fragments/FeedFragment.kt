@@ -28,7 +28,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
+class FeedFragment(): Fragment() {
 
     private lateinit var mainView: View;
 
@@ -41,15 +41,19 @@ class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
     private lateinit var homeFragment: HomeFragment;
     private lateinit var auth: FirebaseAuth;
 
+    private lateinit var mainViewModel: MainViewModel;
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
         initialize(inflater, container);
+
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 System.showLoadingDialog(requireActivity());
+                Thread.sleep(1000);
                 loadFeedData();
                 System.destroyLoadingDialog();
             }
@@ -75,7 +79,7 @@ class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
 
         mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java];
 
-        auth = FirebaseHelper.getAuth();
+        auth = GlobalState.auth!!;
         auth.updateCurrentUser(GlobalState.firebaseUser!!);
 
         FirebaseHelper.setAuth(auth);
@@ -110,8 +114,20 @@ class FeedFragment(private var mainViewModel: MainViewModel): Fragment() {
 
         try {
             val feedList = DatabaseHelper.getFeeds();
+
+            val adapter = FeedAdapter(feedList);
+            withContext(Dispatchers.Main) {
+                adapter.notifyDataSetChanged();
+
+                recylerFeed.adapter = adapter;
+                recylerFeed.layoutManager = LinearLayoutManager(requireActivity());
+            }
         }
         catch (e: Exception) {
+            if (e.message?.contains("Permission denied")!!) {
+                System.dialogMessageBox(requireActivity(), "Error", "Kembali ke home dahulu..");
+                return;
+            }
             System.dialogMessageBox(requireActivity(), "Error", e.message.toString());
         }
 
