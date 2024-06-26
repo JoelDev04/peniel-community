@@ -18,6 +18,7 @@ import javax.security.auth.callback.Callback
 
 object System {
     public const val DEBUG_TAG: String = "JOEL_DEBUG";
+    public const val APP_VERSION: String = "24.06.1";
 
     public var dialogLoading: Dialog? = null;
 

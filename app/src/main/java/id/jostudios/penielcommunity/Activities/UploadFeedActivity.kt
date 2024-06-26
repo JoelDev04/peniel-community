@@ -2,6 +2,7 @@ package id.jostudios.penielcommunity.Activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView.GONE
 import androidx.recyclerview.widget.RecyclerView.VISIBLE
 import id.jostudios.penielcommunity.Enums.FeedType
+import id.jostudios.penielcommunity.Helpers.BitmapHelper
 import id.jostudios.penielcommunity.Helpers.FileHelper
 import id.jostudios.penielcommunity.Helpers.StorageHelper
 import id.jostudios.penielcommunity.Models.FirebaseModels.FeedPostModel
@@ -32,6 +34,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.FileInputStream
+import java.io.InputStream
 import java.util.Date
 
 class UploadFeedActivity : AppCompatActivity() {
@@ -48,11 +52,11 @@ class UploadFeedActivity : AppCompatActivity() {
     private lateinit var editTextCaption: EditText;
     private lateinit var editTextContent: EditText;
 
-    private lateinit var viewModel: UploadViewModel
+    private lateinit var viewModel: UploadViewModel;
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_upload_feed)
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_upload_feed);
 
         initialize();
         widgetHandler();
@@ -65,7 +69,7 @@ class UploadFeedActivity : AppCompatActivity() {
         if (requestCode == 2004 && resultCode == RESULT_OK && data != null) {
             System.debug("Result from pick image");
             System.debug("URI : ${data.data}");
-            System.debug("Data : ${data.toString()}");
+            System.debug("Data : ${data}");
 
             System.debug("Image Path : ${data.data?.path}");
 
@@ -73,16 +77,28 @@ class UploadFeedActivity : AppCompatActivity() {
             val stream = resolver.openInputStream(data.data!!);
             val bitmap = BitmapFactory.decodeStream(stream);
 
-            if (bitmap.height >= 3000) {
-                System.dialogMessageBox(this@UploadFeedActivity, "Error", "Gambar tidak dapat di gunakan!");
-                return;
-            }
+            try {
+                val resizedBitmap = BitmapHelper.resizeImage(bitmap, 1920, 1080);
+                val tempCompressed = BitmapHelper.compressBitmap(applicationContext, resizedBitmap);
 
-            displayImage(data.data!!);
-            viewModel.setSelectedImage(data.data!!);
+                if (tempCompressed == null) {
+                    System.dialogMessageBox(this@UploadFeedActivity, "Error", "Temporary compressed image failed!");
+                    return;
+                }
+
+                val tempStream = resolver.openInputStream(tempCompressed);
+                val tempBitmap = BitmapFactory.decodeStream(tempStream);
+
+                viewModel.setBitmap(tempBitmap);
+
+                displayImage();
+                viewModel.setSelectedImage(tempCompressed);
+            } catch (e: Exception) {
+                System.dialogMessageBox(this@UploadFeedActivity, "Error", e.message.toString());
+            }
         }
 
-        super.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private fun initialize() {
@@ -117,12 +133,12 @@ class UploadFeedActivity : AppCompatActivity() {
         btnUploadThread.setOnClickListener {
             if (TextUtils.isEmpty(viewModel.caption().value)) {
                 System.dialogMessageBox(this, "Error", "Tolong isi caption!");
-                return@setOnClickListener
+                return@setOnClickListener;
             }
 
             if (TextUtils.isEmpty(viewModel.content().value)) {
                 System.dialogMessageBox(this, "Error", "Tolong isi content!");
-                return@setOnClickListener
+                return@setOnClickListener;
             }
 
             GlobalScope.launch {
@@ -134,20 +150,12 @@ class UploadFeedActivity : AppCompatActivity() {
 
         btnPickImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("image/*")
+            intent.setType("image/*");
             startActivityForResult(intent, 2004);
         }
 
         btnEditImage.setOnClickListener {
             System.setToast(applicationContext, "Fitur ini belum tersedia!");
-//
-//            val editIntent = Intent(Intent.ACTION_EDIT).apply {
-//                setDataAndType(viewModel.selectedImage().value, "image/*")
-//                putExtra(Intent.EXTRA_STREAM, viewModel.selectedImage().value)
-//                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//            }
-//
-//            startActivityForResult(Intent.createChooser(editIntent, "Edit image"), 2005);
         }
 
         btnRemoveImage.setOnClickListener {
@@ -157,16 +165,8 @@ class UploadFeedActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayImage(uri: Uri) {
-        val resolver = applicationContext.contentResolver
-        val stream = resolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(stream)
-
-        if (bitmap.height >= 3000) {
-            System.dialogMessageBox(this@UploadFeedActivity, "Error", "Gambar tidak dapat di gunakan!")
-            return
-        }
-
-        imgPickDisplay.setImageBitmap(bitmap)
+    private fun displayImage() {
+        val bitmap = viewModel.bitmap().value;
+        imgPickDisplay.setImageBitmap(bitmap);
     }
 }

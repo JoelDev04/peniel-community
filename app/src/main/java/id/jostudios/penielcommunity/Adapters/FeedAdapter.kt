@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -24,6 +25,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import id.jostudios.penielcommunity.Enums.FeedType
+import id.jostudios.penielcommunity.Fragments.CommentSheetFragment
 import id.jostudios.penielcommunity.Helpers.AnimationHelper
 import id.jostudios.penielcommunity.Helpers.DatabaseHelper
 import id.jostudios.penielcommunity.Helpers.StorageHelper
@@ -142,7 +144,6 @@ class FeedAdapter(private var dataList: List<FeedPostModel>): RecyclerView.Adapt
                         return true; }
 
                     target.getSize(SizeReadyCallback { width, height ->
-                        var maxHeight = 1920;
                         var parsedHeight = resource.intrinsicHeight;
 
                         System.debug("Parsed height : ${parsedHeight}");
@@ -168,6 +169,71 @@ class FeedAdapter(private var dataList: List<FeedPostModel>): RecyclerView.Adapt
     }
 
     private fun setDynamics(data: FeedPostModel, holder: FeedViewHolder) {
+        GlobalScope.launch {
+            var likes = DatabaseHelper.getFeedLikeById(data.feedID);
+
+            var isLike = likes?.userLikes?.find { it == GlobalState.currentUser?.id }!= null;
+
+            withContext(Dispatchers.Main) {
+                holder.textLikeCounter.text = likes?.userLikes?.size.toString();
+                holder.textCommentCounter.text = "0";
+
+                if (isLike) {
+                    holder.imgBtnLike.setImageResource(R.drawable.like_filled);
+                }
+                else {
+                    holder.imgBtnLike.setImageResource(R.drawable.like);
+                }
+
+                holder.imgBtnLike.setOnClickListener {
+                    GlobalScope.launch {
+                        likes = DatabaseHelper.getFeedLikeById(data.feedID);
+                        isLike = likes?.userLikes?.find { it == GlobalState.currentUser?.id }!= null;
+
+                        if (isLike) {
+                            withContext(Dispatchers.Main) {
+                                likes?.userLikes?.remove(GlobalState.currentUser?.id!!);
+                                holder.imgBtnLike.setImageResource(R.drawable.like);
+                                holder.textLikeCounter.text = likes?.userLikes?.size.toString();
+                            }
+
+                            GlobalScope.launch {
+                                DatabaseHelper.postFeedLike(data.feedID, likes!!);
+                            }
+                        }
+                        else {
+                            withContext(Dispatchers.Main) {
+                                likes?.userLikes?.add(GlobalState.currentUser?.id!!);
+                                holder.imgBtnLike.setImageResource(R.drawable.like_filled);
+                                holder.textLikeCounter.text = likes?.userLikes?.size.toString();
+                            }
+
+                            GlobalScope.launch {
+                                DatabaseHelper.postFeedLike(data.feedID, likes!!);
+                            }
+                        }
+                    }
+                }
+
+                holder.imgBtnComment.setOnClickListener {
+                    //System.setToast(context, "Fitur ini belum tersedia!")''
+
+                    val comment = CommentSheetFragment();
+                    val fragmentManager = (context as? AppCompatActivity)?.supportFragmentManager;
+
+                    if (fragmentManager == null) {
+                        System.dialogMessageBox(context as AppCompatActivity, "Error", "Fragment Manager is null!");
+                        return@setOnClickListener;
+                    }
+
+                    fragmentManager.let {
+                        comment.show(it, CommentSheetFragment.TAG);
+                    }
+                }
+            }
+        }
+
+
 //        GlobalScope.launch {
 //            var likes = DatabaseHelper.getFeedLikeByID(data.feedID);
 //            var comments = DatabaseHelper
@@ -194,31 +260,7 @@ class FeedAdapter(private var dataList: List<FeedPostModel>): RecyclerView.Adapt
 //                    holder.imgBtnLike.setImageResource(R.drawable.like);
 //                }
 //
-//                holder.imgBtnLike.setOnClickListener {
-//                    isLiked = likes.userLikes.find { it == GlobalState.currentUser?.id } != null;
 //
-//                    if (isLiked) {
-//                        likes.userLikes.remove(GlobalState.currentUser?.id!!);
-//                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_shrink_down);
-//                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_grow_up);
-//                        holder.imgBtnLike.setImageResource(R.drawable.like);
-//                        holder.textLikeCounter.text = likes.userLikes.size.toString();
-//                    } else {
-//                        likes.userLikes.add(GlobalState.currentUser?.id!!);
-//                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_shrink_down);
-//                        AnimationHelper.animateView(context, holder.imgBtnLike, R.anim.anim_grow_up);
-//                        holder.imgBtnLike.setImageResource(R.drawable.like_filled);
-//                        holder.textLikeCounter.text = likes.userLikes.size.toString();
-//                    }
-//
-//                    GlobalScope.launch {
-//                        DatabaseHelper.postFeedLike(data.feedID, likes);
-//                    }
-//                }
-//
-//                holder.imgBtnComment.setOnClickListener {
-//                    System.dialogMessageBox(context, "Info", "Fitur ini belum tersedia!");
-//                }
 //            }
 //        }
     }

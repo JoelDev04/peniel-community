@@ -12,8 +12,10 @@ import id.jostudios.penielcommunity.Helpers.EncryptorHelper
 import id.jostudios.penielcommunity.Objects.System
 import id.jostudios.penielcommunity.R
 import id.jostudios.penielcommunity.ViewModels.AuthViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AuthActivity : AppCompatActivity() {
 
@@ -71,7 +73,9 @@ class AuthActivity : AppCompatActivity() {
                     System.moveActivity(this@AuthActivity, LoginActivity::class.java);
                 }
 
-                editInputToken.setText("");
+                withContext(Dispatchers.Main) {
+                    editInputToken.setText("");
+                }
             }
         }
     }

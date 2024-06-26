@@ -33,6 +33,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -54,5 +57,12 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
+    implementation("androidx.fragment:fragment-ktx:1.8.0")
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.recyclerview)
 
 }

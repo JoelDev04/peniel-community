@@ -1,7 +1,9 @@
 package id.jostudios.penielcommunity.ViewModels
 
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +14,7 @@ class MainViewModel: ViewModel() {
 
     private var m_auth: MutableStateFlow<FirebaseAuth?> = MutableStateFlow(null);
 
-    public fun currentFragment(): StateFlow<Fragment?> = m_currentFragment.asStateFlow();
+    public fun currentFragment(): LiveData<Fragment?> = m_currentFragment.asLiveData();
     public fun auth(): StateFlow<FirebaseAuth?> = m_auth.asStateFlow();
 
     public fun setCurrentFragment(fragment: Fragment) {

@@ -1,7 +1,9 @@
 package id.jostudios.penielcommunity.ViewModels
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import id.jostudios.penielcommunity.Enums.FeedType
 import id.jostudios.penielcommunity.Helpers.DatabaseHelper
@@ -20,10 +22,12 @@ class UploadViewModel: ViewModel() {
     private var m_selectedImage: MutableStateFlow<Uri?> = MutableStateFlow(null);
     private var m_caption: MutableStateFlow<String> = MutableStateFlow("");
     private var m_content: MutableStateFlow<String> = MutableStateFlow("");
+    private var m_bitmap: MutableStateFlow<Bitmap> = MutableStateFlow(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888));
 
     public fun selectedImage() = m_selectedImage.asStateFlow();
     public fun caption() = m_caption.asStateFlow();
     public fun content() = m_content.asStateFlow();
+    public fun bitmap() = m_bitmap.asStateFlow();
 
     public fun setSelectedImage(uri: Uri?) {
         m_selectedImage.value = uri;
@@ -35,6 +39,10 @@ class UploadViewModel: ViewModel() {
 
     public fun setContent(value: String) {
         m_content.value = value;
+    }
+
+    public fun setBitmap(value: Bitmap) {
+        m_bitmap.value = value;
     }
 
     public suspend fun uploadThread(context: Context) {
@@ -59,8 +67,9 @@ class UploadViewModel: ViewModel() {
                 tempFeed.feedType = FeedType.Thread;
             }
 
-//            DatabaseHelper.postFeedContainer(tempFeed);
-//            DatabaseHelper.postFeedLike(tempFeed.feedID, tempFeedLikes);
+            DatabaseHelper.postFeed(tempFeed);
+            DatabaseHelper.postFeedLike(tempFeed.feedID, tempFeedLikes);
+            DatabaseHelper.postUpdatedFeed(tempFeed.feedID);
 
             withContext(Dispatchers.IO) {
                 Thread.sleep(2500)

@@ -74,7 +74,11 @@ object FirebaseHelper {
         auth = authValue;
     }
 
-    public suspend fun readNode(child: String): String {
+    public fun offlineDB() {
+        db.goOffline();
+    }
+
+    public suspend fun readNode(child: String): String? {
         val node = getDBReference().child(child).get();
         val value = node.await().value;
 
