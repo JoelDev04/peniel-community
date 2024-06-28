@@ -18,7 +18,7 @@ import kotlinx.coroutines.tasks.await
 object FirebaseHelper {
     private const val dbName: String = "mainDB";
 
-    private lateinit var db: FirebaseDatabase;
+    private var db: FirebaseDatabase? = null;
     private lateinit var auth: FirebaseAuth;
     private lateinit var storage: FirebaseStorage;
 
@@ -58,8 +58,8 @@ object FirebaseHelper {
         FirebaseApp.getInstance(dbName).delete();
     }
 
-    public fun getDBReference(): DatabaseReference {
-        return db.reference;
+    public fun getDBReference(): DatabaseReference? {
+        return db?.reference;
     }
 
     public fun getStorageReference(): StorageReference {
@@ -75,12 +75,12 @@ object FirebaseHelper {
     }
 
     public fun offlineDB() {
-        db.goOffline();
+        db?.goOffline();
     }
 
     public suspend fun readNode(child: String): String? {
-        val node = getDBReference().child(child).get();
-        val value = node.await().value;
+        val node = getDBReference()?.child(child)?.get();
+        val value = node?.await()?.value;
 
         val raw = gson.toJson(value);
 
@@ -88,7 +88,7 @@ object FirebaseHelper {
     }
 
     public suspend fun writeNode(child: String, data: Any) {
-        val node = getDBReference().child(child);
-        node.setValue(data).await();
+        val node = getDBReference()?.child(child);
+        node?.setValue(data)?.await();
     }
 }

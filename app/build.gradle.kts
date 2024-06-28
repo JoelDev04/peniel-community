@@ -64,5 +64,6 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.recyclerview)
+    androidTestImplementation(libs.junit.junit)
 
 }

@@ -23,13 +23,13 @@ class DataHelper(context: Context) {
         System.debug("Save file path : ${saveDir}/${saveFile}");
     }
 
-    public fun loadData() {
+    public fun loadData(): SaveModel? {
         val file = FileHelper.getFile(saveDir, saveFile);
 
         if (file == null) {
             val newFile = File("${saveDir}/${saveFile}");
             newFile.createNewFile();
-            return;
+            return null;
         }
 
         val rawData = FileHelper.readFile(file);
@@ -38,7 +38,7 @@ class DataHelper(context: Context) {
         System.debug("Data : ${rawData}");
 
         if (TextUtils.isEmpty(rawData)) {
-            return;
+            return null;
         }
 
         val objData = gson.fromJson<SaveModel>(rawData, saveModelType);
@@ -52,6 +52,8 @@ class DataHelper(context: Context) {
         GlobalState.currentCredential = objData.credential;
         GlobalState.isAuth = GlobalState.token != null;
         GlobalState.isLogin = GlobalState.currentCredential != null && GlobalState.currentUser != null;
+
+        return objData;
     }
 
     public fun saveData(model: SaveModel) {
